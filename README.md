@@ -10,6 +10,6 @@ Installation guide
       2. In the terminal pass : docker-compose up --build
   
   Note : 
-    if you have installed MySql, stop the services to avoid ports conflict. 
+    if you have MySql installed, stop the services to avoid ports conflict. 
     
   
