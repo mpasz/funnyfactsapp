@@ -10,6 +10,8 @@ pytest = "*"
 mysqlclient = "*"
 dj-database-url = "*"
 requests = "*"
+gunicorn = "*"
+portalocker = "*"
 
 [dev-packages]
 pytest-django = "*"
