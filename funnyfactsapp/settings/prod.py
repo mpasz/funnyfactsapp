@@ -6,8 +6,8 @@ DEBUG = False
 
 X_API_TOKEN = os.environ['X_API_TOKEN']
 
-ALLOWED_HOSTS = ['funnyfacts-prod.herokuapp.com']
+ALLOWED_HOSTS = ['funnyfactsapp-prod.herokuapp.com']
 
-
-
-DATABASES = dj_database_url.config()
+DATABASES = {
+    'default': dj_database_url.config()
+}
