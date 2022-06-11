@@ -1,5 +1,11 @@
 # funnyfactsapp
 
+Solution has been wrtten in Django Rest Framework for it's simplicity. 
+For the database engine i chose MySQL. The choice was made only by my private preferences. 
+For testingpurposes i am using pytest. This module is the moste convinient way to do the tests, in my opinion.
+
+
+
 Installation guide
   Requirements : 
     1. Docker
