@@ -4,7 +4,6 @@ DEBUG = True
 
 X_API_TOKEN = "SECRET_API_KEY"
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
