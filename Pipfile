@@ -12,6 +12,7 @@ dj-database-url = "*"
 requests = "*"
 gunicorn = "*"
 portalocker = "*"
+whitenoise = "*"
 
 [dev-packages]
 pytest-django = "*"
