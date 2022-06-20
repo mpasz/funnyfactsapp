@@ -1,5 +1,4 @@
 import calendar
-
 from funnyfactsapi.services import get_funny_fact
 from .models import FunnyFacts
 from rest_framework import serializers

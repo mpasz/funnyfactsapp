@@ -1,14 +1,26 @@
-from django.shortcuts import get_object_or_404
-from requests import delete, request
+from django.db.models.aggregates import Count
+from django.shortcuts import (
+    get_object_or_404, 
+    redirect
+)
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
-from funnyfactsapi.services import get_funny_fact
-from funnyfactsapi.models import FunnyFacts
-from funnyfactsapi.serializers import FFSerializer, SaveFunnyFactSerializer
 from funnyfactsapp.settings import dev
+from funnyfactsapi.models import FunnyFacts
+from funnyfactsapi.services import get_funny_fact
+from funnyfactsapi.serializers import (
+    FFSerializer,
+    PopularFunnyFactSerializer, 
+    SaveFunnyFactSerializer
+)
+from rest_framework.generics import (
+    ListCreateAPIView, 
+    RetrieveDestroyAPIView, 
+    ListAPIView
+)
+
 
 class FunnyFactsList(ListCreateAPIView):
     def get_queryset(self):
@@ -19,10 +31,36 @@ class FunnyFactsList(ListCreateAPIView):
             return FFSerializer
         elif self.request.method == 'POST':
             return SaveFunnyFactSerializer
-    
+
+    def create(self, request, *args, **kwargs):
+        day=request.data['day']
+        month = request.data['month']
+        daymonth = str(day) + str(month)
+        fact = get_funny_fact(day, month)
+
+        if day in list(range(1,31)) and month in list(range(1,12)):
+            try:
+                new_fact = FunnyFacts.objects.create(day=day, month=month, daymonth=daymonth, fact=fact)
+                new_fact.save()
+                serializer = SaveFunnyFactSerializer(new_fact)
+                obj_id = serializer.data['id']
+                return redirect(f'{request.stream.path}{obj_id}')
+            except :
+                queryset = FunnyFacts.objects.all()
+                db_fact = get_object_or_404(queryset, daymonth=daymonth)
+                if db_fact.fact != fact:
+                    db_fact.fact = fact
+                    db_fact.save()
+                    serializer = SaveFunnyFactSerializer(db_fact)
+                    obj_id = serializer.data['id']
+                    return redirect(f'{request.stream.path}{obj_id}')
+        else:
+            return Response({'error': 'Given day or month is out of range'}, status=status.HTTP_400_BAD_REQUEST)
+
     def get_serializer_context(self):
         return {'request': self.request}
-    
+
+
 class FunnyFactDetail(RetrieveDestroyAPIView):
     
     def get_queryset(self):
@@ -47,15 +85,22 @@ class FunnyFactDetail(RetrieveDestroyAPIView):
         else:
             return Response({'error' : 'You should provide secret key to delete object'}, status=status.HTTP_403_FORBIDDEN)
     
-    # def get(self, request, id):
-    #     serializer = FFSerializer(funny_fact)
-    #     return Response(serializer.data)
 
-    # def delete(self, request, id):
-    #     funny_fact = get_object_or_404(FunnyFacts, pk=id)
-    #     funny_fact.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
-
+class PopularFunyFacts(ListAPIView):
+    
+    def get_queryset(self):
+        return (FunnyFacts.objects
+                .values('month')
+                .annotate(days_checked=Count('day'))
+                .order_by()
+                )
+    
+    def get_serializer_class(self):
+        return PopularFunnyFactSerializer
+    
+    def get_serializer_context(self):
+        return {'request': self.request}
+    
 
 # from funnyfactsapi import serializers
 
