@@ -1,14 +1,16 @@
 from django.urls import path
 from funnyfactsapi.views import (
-    funny_fact_list,
-    funny_fact_detail
+    FunnyFactDetail,
+    FunnyFactsList,
+    # funny_fact_list,
+    # funny_fact_detail
 )
 
 app_name = 'funny_fact'
 
 urlpatterns = [
-    path('dates/', funny_fact_list, name='list'),
-    path('dates/<int:id>/', funny_fact_detail, name='detail'),
+    path('dates/', FunnyFactsList.as_view()),
+    path('dates/<int:pk>/', FunnyFactDetail.as_view()),
 ]
 
 

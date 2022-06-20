@@ -1,35 +1,60 @@
 from django.shortcuts import get_object_or_404
+from requests import delete, request
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.generics import ListCreateAPIView, RetrieveDestroyAPIView
 from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from funnyfactsapi.services import get_funny_fact
 from funnyfactsapi.models import FunnyFacts
 from funnyfactsapi.serializers import FFSerializer, SaveFunnyFactSerializer
+from funnyfactsapp.settings import dev
 
-
-@api_view(['GET', 'POST'])
-def funny_fact_list(request):
-    if request.method == 'GET':
-        queryset = FunnyFacts.objects.all()
-        serializer = FFSerializer(queryset, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = SaveFunnyFactSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+class FunnyFactsList(ListCreateAPIView):
+    def get_queryset(self):
+        return FunnyFacts.objects.all()
     
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return FFSerializer
+        elif self.request.method == 'POST':
+            return SaveFunnyFactSerializer
+    
+    def get_serializer_context(self):
+        return {'request': self.request}
+    
+class FunnyFactDetail(RetrieveDestroyAPIView):
+    
+    def get_queryset(self):
+        return FunnyFacts.objects.all() 
 
-@api_view(['GET', 'DELETE'])
-def funny_fact_detail(request, id):
-    funny_fact = get_object_or_404(FunnyFacts, pk=id)
-    if request.method == 'GET':
-        serializer = FFSerializer(funny_fact)
-        return Response(serializer.data)
-    elif request.method =='DELETE':
-        funny_fact.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def get_serializer_class(self):
+        return FFSerializer
 
+    def get_serializer_context(self):
+        return {'request': self.request}
+    
+    def delete(self, request, pk):
+        token = dev.X_API_KEY
+        key = request.query_params.get('X-API-KEY')
+        if key:
+            if token == request.query_params['X-API-TOKEN']:
+                fact = get_object_or_404(FunnyFacts, pk=pk)
+                fact.delete()
+                return Response({'message':'Object has been deleted'},status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response({'error':'Invalid value of secret key'}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response({'error' : 'You should provide secret key to delete object'}, status=status.HTTP_403_FORBIDDEN)
+    
+    # def get(self, request, id):
+    #     serializer = FFSerializer(funny_fact)
+    #     return Response(serializer.data)
+
+    # def delete(self, request, id):
+    #     funny_fact = get_object_or_404(FunnyFacts, pk=id)
+    #     funny_fact.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # from funnyfactsapi import serializers

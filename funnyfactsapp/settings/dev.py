@@ -1,8 +1,9 @@
+import os
 from .common import *
 
 DEBUG = True
 
-X_API_TOKEN = "SECRET_API_KEY"
+X_API_KEY = os.environ['X_API_TOKEN']
 
 DATABASES = {
     'default': {
