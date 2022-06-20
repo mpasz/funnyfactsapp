@@ -13,6 +13,11 @@ requests = "*"
 gunicorn = "*"
 portalocker = "*"
 whitenoise = "*"
+django-rest-swagger = "*"
+pyyaml = "*"
+uritemplate = "*"
+coreapi = "*"
+drf-yasg = "*"
 
 [dev-packages]
 pytest-django = "*"

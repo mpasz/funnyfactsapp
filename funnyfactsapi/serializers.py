@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 
 
-class FFSerializer(serializers.ModelSerializer):
+class FunnyFactSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only = True)
     month = serializers.SerializerMethodField(method_name='_get_month_name')
    

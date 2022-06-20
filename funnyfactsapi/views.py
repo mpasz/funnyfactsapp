@@ -3,6 +3,7 @@ from django.shortcuts import (
     get_object_or_404, 
     redirect
 )
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -10,7 +11,7 @@ from funnyfactsapp.settings import dev
 from funnyfactsapi.models import FunnyFacts
 from funnyfactsapi.services import get_funny_fact
 from funnyfactsapi.serializers import (
-    FFSerializer,
+    FunnyFactSerializer,
     PopularFunnyFactSerializer, 
     SaveFunnyFactSerializer
 )
@@ -27,15 +28,18 @@ class FunnyFactsList(ListCreateAPIView):
     
     def get_serializer_class(self):
         if self.request.method == 'GET':
-            return FFSerializer
+            return FunnyFactSerializer
         elif self.request.method == 'POST':
             return SaveFunnyFactSerializer
-
+    
     def create(self, request, *args, **kwargs):
-        day=request.data['day']
-        month = request.data['month']
-        daymonth = str(day) + str(month)
-        fact = get_funny_fact(day, month)
+        try:
+            day = request.data['day']
+            month = request.data['month']
+            daymonth = str(day) + str(month)
+            fact = get_funny_fact(day, month)
+        except :
+            return Response({'error': 'Missing keys in request'}, status=status.HTTP_400_BAD_REQUEST)
 
         if day in list(range(1,31)) and month in list(range(1,12)):
             try:
@@ -66,11 +70,12 @@ class FunnyFactDetail(RetrieveDestroyAPIView):
         return FunnyFacts.objects.all() 
 
     def get_serializer_class(self):
-        return FFSerializer
+        return FunnyFactSerializer
 
     def get_serializer_context(self):
         return {'request': self.request}
     
+    @swagger_auto_schema(operation_description='To delete the date it’s necessary to provide an X-API-KEY header')
     def delete(self, request, pk):
         token = dev.X_API_KEY
         key = request.query_params.get('X-API-KEY')
