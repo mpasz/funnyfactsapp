@@ -8,7 +8,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'funnyfactsdb',
-        'HOST': 'mysql', #localhost
+        'HOST': 'localhost',
         'USER': 'root',
         'PASSWORD': 'Qwerty1234'
     }
