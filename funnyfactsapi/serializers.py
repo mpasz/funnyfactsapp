@@ -1,21 +1,24 @@
 import calendar
+
+from funnyfactsapi.services import get_funny_fact
 from .models import FunnyFacts
 from rest_framework import serializers
 
 
 
-class FunnyFactSerializer(serializers.ModelSerializer):
+class FFSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only = True)
-    month = serializers.SerializerMethodField('_get_month_name')
+    month = serializers.SerializerMethodField(method_name='_get_month_name')
    
     class Meta:
         model = FunnyFacts
-        fields = ['id', 'month', 'day', 'fact']    
+        fields = ['id', 'day','month', 'fact']    
     
     def _get_month_name(self, obj):
         return calendar.month_name[obj.month]
 
 class SaveFunnyFactSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
     fact = serializers.CharField(read_only = True)
     # month = serializers.SerializerMethodField('_get_month_name')
     class Meta:
@@ -24,6 +27,14 @@ class SaveFunnyFactSerializer(serializers.ModelSerializer):
     
     def _get_month_name(self, obj):
         return calendar.month_name[obj.month]
+    
+    def create(self, validated_data):
+        funny_fact = FunnyFacts(**validated_data)
+        funny_fact.daymonth = str(validated_data['day']) + str(validated_data['month'])
+        funny_fact.fact = get_funny_fact(validated_data['day'], validated_data['month'])
+        funny_fact.save()
+        return funny_fact
+
 
 class DeleteFunnyFactSerializer(serializers.ModelSerializer):
     class Meta:
