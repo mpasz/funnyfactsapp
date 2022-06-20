@@ -1,13 +1,14 @@
-from rest_framework import routers
-from . import views
-
-router = routers.DefaultRouter()
-router.register('dates', views.FunnyFactsViewSet, basename="list")
-router.register('popular', views.PopularFunnyFactViewSet, basename="popular-facts-list")
-
-
-urlpatterns = (
-    router.urls
+from django.urls import path
+from funnyfactsapi.views import (
+    FunnyFactDetail,
+    FunnyFactsList,
+    PopularFunyFacts
 )
 
+app_name = 'funny_fact'
 
+urlpatterns = [
+    path('dates/', FunnyFactsList.as_view()),
+    path('dates/<int:pk>/', FunnyFactDetail.as_view()),
+    path('popular/', PopularFunyFacts.as_view())
+]
