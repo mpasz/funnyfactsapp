@@ -14,7 +14,7 @@ class FunnyFactSerializer(serializers.ModelSerializer):
         fields = ['id', 'day','month', 'fact']    
     
     def _get_month_name(self, obj):
-        return calendar.month_name[obj.month]
+        return calendar.month_name[int(obj.month)]
 
 class SaveFunnyFactSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)

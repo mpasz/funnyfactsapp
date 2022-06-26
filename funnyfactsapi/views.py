@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from funnyfactsapp.settings import dev
 from funnyfactsapi.models import FunnyFacts
-from funnyfactsapi.services import get_funny_fact
+from funnyfactsapi.services import get_funny_fact, day_validation
 from funnyfactsapi.serializers import (
     FunnyFactSerializer,
     PopularFunnyFactSerializer, 
@@ -34,14 +34,17 @@ class FunnyFactsList(ListCreateAPIView):
     
     def create(self, request, *args, **kwargs):
         try:
-            day = request.data['day']
-            month = request.data['month']
-            daymonth = str(day) + str(month)
+            day_string = request.data['day']
+            month_string = request.data['month']
+            day = int(day_string)
+            month = int(month_string)
+            max_day = day_validation(day, month)
+            daymonth = day + month
             fact = get_funny_fact(day, month)
         except :
             return Response({'error': 'Missing keys in request'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if day in list(range(1,31)) and month in list(range(1,12)):
+        if day in list(range(1,max_day+1)) and month in list(range(1,13)):
             try:
                 new_fact = FunnyFacts.objects.create(day=day, month=month, daymonth=daymonth, fact=fact)
                 new_fact.save()
