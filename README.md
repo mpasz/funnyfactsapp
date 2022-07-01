@@ -5,6 +5,7 @@ For the database engine i chose MySQL. The choice was made only by my private pr
 For testingpurposes i am using pytest. This module is the moste convinient way to do the tests, in my opinion.
 
 
+!! Before instalation provide propper value of secret key in line 4 of Dockerfile !!
 
 Installation guide
   Requirements : 
